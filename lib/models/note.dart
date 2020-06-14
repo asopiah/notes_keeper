@@ -11,7 +11,7 @@ class Note {
   /// Named constructor that includes the table id
   Note.withId(this._id, this._title, this._date, this._priority,
       [this._description]);
-
+  int get id => _id;
   int get priority => _priority;
 
   String get date => _date;
