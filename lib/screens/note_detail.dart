@@ -2,23 +2,26 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NoteDetail extends StatefulWidget {
+  String appBarTitle;
+  NoteDetail(this.appBarTitle);
   @override
   State<StatefulWidget> createState() {
-    return NoteDetailState();
+    return NoteDetailState(this.appBarTitle);
   }
 }
 
 class NoteDetailState extends State {
+  String appBarTitle;
   static var _priorities = ['High', 'Low'];
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-
+  NoteDetailState(this.appBarTitle);
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme.of(context).textTheme.title;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Note'),
+        title: Text(appBarTitle),
       ),
       body: Padding(
         padding: EdgeInsets.only(
