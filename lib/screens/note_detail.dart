@@ -9,11 +9,12 @@ import 'package:sqflite/sqflite.dart';
 class NoteDetail extends StatefulWidget {
   final String appBarTitle;
   final Note note;
-  NoteDetail(this. note, this.appBarTitle);
+
+  NoteDetail(this.note, this.appBarTitle);
 
   @override
   State<StatefulWidget> createState() {
-    return NoteDetailState(this.note,this.appBarTitle);
+    return NoteDetailState(this.note, this.appBarTitle);
   }
 }
 
@@ -25,11 +26,14 @@ class NoteDetailState extends State {
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
 
-  NoteDetailState(this.note,this.appBarTitle);
+  NoteDetailState(this.note, this.appBarTitle);
+
+  var _forkKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme.of(context).textTheme.title;
+
     ///update the TextFields
     titleController.text = note.title;
     descriptionController.text = note.description;
@@ -49,12 +53,13 @@ class NoteDetailState extends State {
               },
             ),
           ),
-          body: Padding(
-            padding: EdgeInsets.only(
+          body: Form(
+            key: _forkKey,
+            /*padding: EdgeInsets.only(
               top: 15.0,
               left: 10.0,
               right: 10.0,
-            ),
+            ),*/
             child: ListView(
               children: <Widget>[
                 /// first element
@@ -84,9 +89,16 @@ class NoteDetailState extends State {
                     left: 10.0,
                     right: 10.0,
                   ),
-                  child: TextField(
+                  child: TextFormField(
                     controller: titleController,
                     style: textStyle,
+                    /// validate the Title field
+                    validator: (String value) {
+                      if (value.isEmpty) {
+                        return 'Description is empty field is empty';
+                      }
+                      return null;
+                    },
                     onChanged: (value) {
                       debugPrint('Something changed in Title Text field');
                       updateTitle();
@@ -94,6 +106,10 @@ class NoteDetailState extends State {
                     decoration: InputDecoration(
                         labelText: 'Title',
                         labelStyle: textStyle,
+                        errorStyle: TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: 15.0,
+                        ),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5.0))),
                   ),
@@ -106,7 +122,7 @@ class NoteDetailState extends State {
                     left: 10.0,
                     right: 10.0,
                   ),
-                  child: TextField(
+                  child: TextFormField(
                     controller: descriptionController,
                     style: textStyle,
                     onChanged: (value) {
@@ -116,6 +132,10 @@ class NoteDetailState extends State {
                     decoration: InputDecoration(
                         labelText: 'Description',
                         labelStyle: textStyle,
+                        errorStyle: TextStyle(
+                          color: Colors.yellowAccent,
+                          fontSize: 15.0,
+                        ),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5.0))),
                   ),
@@ -136,8 +156,11 @@ class NoteDetailState extends State {
                           ),
                           onPressed: () {
                             setState(() {
+                              /// first ensure that the field aren't empty
+                            if (_forkKey.currentState.validate()) {
                               debugPrint("Save button clicked");
                               _save();
+                            }
                             });
                           },
                         ),
@@ -172,10 +195,12 @@ class NoteDetailState extends State {
           ),
         ));
   }
-  void moveToLastScreen(){
+
+  void moveToLastScreen() {
     ///true parameter will pass some value to the previous screen
     Navigator.pop(context, true);
   }
+
   ///Convert the String priority in the form of integer before saving it to Database
   void updatePriorityAsInt(String value) {
     switch (value) {
@@ -193,17 +218,17 @@ class NoteDetailState extends State {
     String priority;
     switch (value) {
       case 1:
-        priority = _priorities[0];  // 'High'
+        priority = _priorities[0]; // 'High'
         break;
       case 2:
-        priority = _priorities[1];  // 'Low'
+        priority = _priorities[1]; // 'Low'
         break;
     }
     return priority;
   }
 
   /// Update the title of Note object
-  void updateTitle(){
+  void updateTitle() {
     note.title = titleController.text;
   }
 
@@ -218,33 +243,35 @@ class NoteDetailState extends State {
     moveToLastScreen();
     note.date = DateFormat.yMMMd().format(DateTime.now());
     int result;
-    if (note.id != null) {  // Case 1: Update operation
+    if (note.id != null) {
+      // Case 1: Update operation
       result = await helper.updateNote(note);
-    } else { // Case 2: Insert Operation
+    } else {
+      // Case 2: Insert Operation
       result = await helper.insertNote(note);
     }
+
     /// check if the operation was a success or a failure
-    if (result != 0) {  // Success
+    if (result != 0) {
+      // Success
       _showAlertDialog('Status', 'Note Saved Successfully');
-    } else {  // Failure
+    } else {
+      // Failure
       _showAlertDialog('Status', 'Problem Saving Note');
     }
-
   }
 
   void _showAlertDialog(String title, String message) {
-
     AlertDialog alertDialog = AlertDialog(
       title: Text(title),
       content: Text(message),
     );
-    showDialog(
-        context: context,
-        builder: (_) => alertDialog
-    );
+    showDialog(context: context, builder: (_) => alertDialog);
   }
+
   void _delete() async {
     moveToLastScreen();
+
     /// Case 1: If user is trying to delete the NEW NOTE i.e. he has come to
     /// the detail page by pressing the FAB of NoteList page.
     if (note.id == null) {
