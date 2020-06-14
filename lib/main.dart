@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notes_keeper/screens/note_detail.dart';
 import 'package:notes_keeper/screens/note_list.dart';
 
 void main(){ /// main function
@@ -16,7 +17,7 @@ void main(){ /// main function
        primarySwatch: Colors.deepPurple
      ),
 
-     home: NoteList(),
+     home: NoteDetail(),
 
    );
   }
