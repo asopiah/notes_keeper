@@ -23,6 +23,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  intl: ^0.16.1 #internationalization package . Includes data/number formatting and parsing
+  sqflite: any  # The database plugin
+  path_provider: any #Find commonly used locations on the file system
+
 
 
   # The following adds the Cupertino Icons font to your application.
